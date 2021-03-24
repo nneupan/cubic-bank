@@ -23,22 +23,22 @@ import com.rab3tech.dao.entity.Role;
 import com.rab3tech.vo.LoginVO;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class) // step 1 is to inject MockitoJUnitRunner.class
 public class LoginServiceImplTest {
 	
-	@Mock
+	@Mock // must add MOCK repository (aka dummy repository)
 	private LoginRepository loginRepository;
 	
-	@InjectMocks
+	@InjectMocks // must add INJECTMOCKS for MOCK service impl (dummy service layer)
 	private LoginServiceImpl loginServiceImpl;
 	
 	
-	@Before
+	@Before // why this??? what does this mean exactly??
 	public void init() {
 		 MockitoAnnotations.initMocks(this); //Initializing mocking for each test cases
 	}
 
-	@Test
+	@Test // must TEST this function filled with dummy data
 	public void testFindUserByUsernameWhenExist() {
 		Login login=new Login();
 		login.setEmail("nagen@gmail.com");

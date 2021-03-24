@@ -135,14 +135,21 @@ public class CustomerUIController {
 		// saving customer into database
 		logger.debug(customerVO.toString());
 		customerVO = customerService.createAccount(customerVO);
+		
+		
+		
 		// Write code to send email
-
 		EmailVO mail = new EmailVO(customerVO.getEmail(), "javahunk2020@gmail.com",
 				"Regarding Customer " + customerVO.getName() + "  userid and password", "", customerVO.getName());
+		
+		
+		// ^^ need this explained a little to understand what's happening and
+		// where the info is going 
 		mail.setUsername(customerVO.getUserid());
 		mail.setPassword(customerVO.getPassword());
 		emailService.sendUsernamePasswordEmail(mail);
-		System.out.println(customerVO);
+		System.out.println(customerVO); // why this when we used logger earlier? 
+										// is it because we want to see it in the console? (developer)
 		model.addAttribute("loginVO", new LoginVO());
 		model.addAttribute("message", "Your account has been setup successfully , please check your email.");
 		return "customer/login";
