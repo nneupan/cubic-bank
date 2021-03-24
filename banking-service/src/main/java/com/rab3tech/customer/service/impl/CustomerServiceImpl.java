@@ -1,6 +1,7 @@
 package com.rab3tech.customer.service.impl;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
@@ -9,10 +10,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.rab3tech.admin.dao.repository.CustomerAccountInfoRepository;
 import com.rab3tech.admin.dao.repository.MagicCustomerRepository;
 import com.rab3tech.customer.dao.repository.RoleRepository;
 import com.rab3tech.customer.service.CustomerService;
 import com.rab3tech.dao.entity.Customer;
+import com.rab3tech.dao.entity.CustomerQuestionAnswer;
 import com.rab3tech.dao.entity.Login;
 import com.rab3tech.dao.entity.Role;
 import com.rab3tech.email.service.EmailService;
@@ -28,6 +31,7 @@ public class CustomerServiceImpl implements  CustomerService{
 	
 	@Autowired
 	private RoleRepository roleRepository;
+	
 	
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -57,6 +61,35 @@ public class CustomerServiceImpl implements  CustomerService{
 		Customer dcustomer=customerRepository.save(pcustomer);
 		customerVO.setId(dcustomer.getId());
 		customerVO.setUserid(customerVO.getUserid());
+		return customerVO;
+	}
+	
+	@Override
+	public CustomerVO getCustomer(String email) {
+		Optional<Customer> customerEntity = customerRepository.findByEmail(email);
+		CustomerVO customerVO = new CustomerVO();
+		BeanUtils.copyProperties(customerEntity.get(), customerVO);
+		customerVO.setUserid(email);
+		return customerVO;
+		
+	}
+	
+	@Override
+	public CustomerVO  updateCustomer (CustomerVO customerVO) {
+		Customer customer = new Customer();
+		CustomerQuestionAnswer customerQuestAns = new CustomerQuestionAnswer();
+		BeanUtils.copyProperties(customerVO, customer);
+		BeanUtils.copyProperties(customerVO, customerQuestAns);
+		String question1 = customerVO.getQuestion1();
+		String answer1= customerVO.getAnswer1();
+		customerQuestAns.setQuestion(question1);
+		customerQuestAns.setAnswer(answer1);
+		customerQuestAns.setId(customerVO.getId());
+		System.out.println(customerQuestAns);
+
+		customerRepository.save(customer);
+//		customerRepository.save(customerQuestAns);
+		
 		return customerVO;
 	}
 

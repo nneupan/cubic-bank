@@ -5,5 +5,10 @@ import com.rab3tech.vo.CustomerVO;
 public interface CustomerService {
 
 	CustomerVO createAccount(CustomerVO customerVO);
-
+	
+	CustomerVO getCustomer (String email);
+	
+	CustomerVO updateCustomer (CustomerVO customerVO);
 }
+
+

@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rab3tech.customer.service.LoginService;
@@ -111,7 +113,7 @@ public class LoginController {
 	}	
 	
 	
-	/*@PostMapping(value= {"/customer/login","/auth"})
+	@PostMapping(value= {"/customer/login","/auth"})
 	public String postLogin(@ModelAttribute LoginVO loginVO,HttpSession session,Model model) {
 			Optional<LoginVO> optional=loginService.authUser(loginVO);
 			if(optional.isPresent()) {
@@ -136,6 +138,6 @@ public class LoginController {
 				return "customer/login";	//login.html
 			}
 		
-	}	*/
+	}	
 
 }

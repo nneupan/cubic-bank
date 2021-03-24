@@ -73,5 +73,11 @@ public class CustomerQuestionAnswer {
 	public void setDom(Timestamp dom) {
 		this.dom = dom;
 	}
+
+	@Override
+	public String toString() {
+		return "CustomerQuestionAnswer [id=" + id + ", question=" + question + ", answer=" + answer + ", login=" + login
+				+ ", doe=" + doe + ", dom=" + dom + "]";
+	}
 	
 }

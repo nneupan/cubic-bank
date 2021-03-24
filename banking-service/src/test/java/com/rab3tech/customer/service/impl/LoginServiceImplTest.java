@@ -50,7 +50,7 @@ public class LoginServiceImplTest {
 		role.setRid(100);
 		rolesSet.add(role);
 		login.setRoles(rolesSet);
-		Optional<Login> ologin=Optional.of(login);
+		Optional<Login> ologin=Optional.of(login); // 
 		when(loginRepository.findByLoginid("nagen@gmail.com")).thenReturn(ologin);
 		Optional<LoginVO>   optional=loginServiceImpl.findUserByUsername("nagen@gmail.com");
 		assertTrue(optional.isPresent());
