@@ -2,16 +2,17 @@ package com.rab3tech.customer.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +23,13 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.GetMapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rab3tech.customer.service.impl.CustomerEnquiryService;
 import com.rab3tech.test.TestUtil;
 import com.rab3tech.vo.CustomerSavingVO;
@@ -101,9 +103,16 @@ public class CustomerAccountEnquiryControllerTest {
 		return response;
 	}*/
 	
+	
 	@Test
 	public	void testSaveEnquiryWhenSuccess2() throws Exception {
-		  CustomerSavingVO customerSavingVO=new CustomerSavingVO(0,"nagendra","nagen@gmail.com","02390","NA","Saving","Appoved","C9393",null,"A435");
+		
+		File file = new File("src/test/resources/poc.json");
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		CustomerSavingVO customerSavingVO=objectMapper.readValue(file, CustomerSavingVO.class);
+		
+		  //CustomerSavingVO customerSavingVO=new CustomerSavingVO(0,"nagendra","nagen@gmail.com","02390","NA","Saving","Appoved","C9393",null,"A435");
 		  when(customerEnquiryService.emailNotExist("nagen@gmail.com")).thenReturn(true);
 	 	  when(customerEnquiryService.save(customerSavingVO)).thenReturn(customerSavingVO);
 	 	

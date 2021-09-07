@@ -1,29 +1,27 @@
 package com.rab3tech.admin.service.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-
-import javax.validation.constraints.AssertFalse;
-import javax.validation.constraints.AssertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.BeanUtils;
 
 import com.rab3tech.customer.dao.repository.CustomerLocationRepository;
 import com.rab3tech.dao.entity.Location;
+import com.rab3tech.dao.entity.Login;
 import com.rab3tech.vo.LocationVO;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,6 +37,40 @@ public class LocationServiceImplTest {
 	@Before
 	public void anything(){
 		MockitoAnnotations.initMocks(this);
+	}
+	
+	
+	@Test
+	public void testFindLocationWhenExit() {
+		List<Location> locationList=new ArrayList<>();
+		Location loc=new Location();
+		loc.setLocation("Fremont");
+		loc.setId(122);
+		loc.setLcode("L0191");
+		loc.setLogin(new Login());
+		locationList.add(loc);
+		
+		Location loc2=new Location();
+		loc2.setLocation("Tauweye");
+		loc2.setId(123);
+		loc2.setLcode("L0192");
+		loc2.setLogin(new Login());
+		locationList.add(loc2);
+		//Mocking the behavior of customerLocationRepository
+		when(customerLocationRepository.findAll()).thenReturn(locationList);
+		
+		List<LocationVO> locationVOs=customerLocationService.findLocation();
+		assertEquals(2, locationVOs.size());
+		assertEquals("L0191",locationVOs.get(0).getLcode());
+	}
+	
+	@Test
+	public void testFindLocationWhenNotExit() {
+		List<Location> locationList=new ArrayList<>();
+		//Mocking the behavior of customerLocationRepository
+		when(customerLocationRepository.findAll()).thenReturn(locationList);
+		List<LocationVO> locationVOs=customerLocationService.findLocation();
+		assertEquals(0, locationVOs.size());
 	}
 	
 	
