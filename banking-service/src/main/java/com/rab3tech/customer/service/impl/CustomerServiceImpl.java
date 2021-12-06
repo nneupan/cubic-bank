@@ -180,7 +180,8 @@ public class CustomerServiceImpl implements CustomerService {
 		login.setNoOfAttempt(3);
 		login.setLoginid(customerVO.getEmail());
 		login.setName(customerVO.getName());
-		String genPassword = PasswordGenerator.generateRandomPassword(8);
+//		String genPassword = PasswordGenerator.generateRandomPassword(8);
+		String genPassword = "test@123";
 		customerVO.setPassword(genPassword);
 		login.setPassword(bCryptPasswordEncoder.encode(genPassword));
 		login.setToken(customerVO.getToken());

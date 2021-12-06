@@ -53,6 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .antMatchers("/admin/dloantype").permitAll()
         .antMatchers("/admin/loantype").permitAll() 
         .antMatchers("/admin/addBranch").permitAll() 
+        .antMatchers("/admin/creditcards/**").permitAll() 
         .antMatchers("/admin/deleteBranch").permitAll() 
         .antMatchers("/admin/**").hasAuthority("ADMIN").
         antMatchers("/employee/**").hasAnyAuthority("EMPLOYEE","ADMIN").
