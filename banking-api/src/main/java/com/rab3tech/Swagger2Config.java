@@ -25,6 +25,7 @@ public class Swagger2Config {
             .build().apiInfo(apiEndPointsInfo());
     }
 
+	
     private ApiInfo apiEndPointsInfo() {
 
         return new ApiInfoBuilder().title("GRC Software For Infosec Risk, Compliance & Audit Management")
