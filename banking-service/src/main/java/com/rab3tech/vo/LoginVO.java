@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public class LoginVO {
-
+	private int cid;
 	private int uid;
 	private String username;
 	private String password;
@@ -15,6 +15,16 @@ public class LoginVO {
 	private String salutation;
 	private String locked;
 	
+	
+	
+	public int getCid() {
+		return cid;
+	}
+
+	public void setCid(int cid) {
+		this.cid = cid;
+	}
+
 	public Timestamp getLlt() {
 		return llt;
 	}

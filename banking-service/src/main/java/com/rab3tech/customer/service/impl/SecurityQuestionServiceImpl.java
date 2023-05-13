@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +64,28 @@ public class SecurityQuestionServiceImpl implements SecurityQuestionService {
 	
 	}
 	
+	@Override
+	public List<String> findQuestionAnswer(String email) {
+		List<String> customerQuestions =new ArrayList<>();  
+		List<CustomerQuestionAnswer> customerQuestionAnswers=customerQuestionsAnsRepository.findQuestionAnswer(email);
+		for(CustomerQuestionAnswer customerQuestionAnswer:customerQuestionAnswers){
+			customerQuestions.add(customerQuestionAnswer.getQuestion());
+		}
+		return customerQuestions;
+	}
+	
+	@Override
+	public boolean validateQuestionAnswer(String email,String securityAns1,String securityAns2) {
+		boolean status=false;
+		List<CustomerQuestionAnswer> customerQuestionAnswers=customerQuestionsAnsRepository.findQuestionAnswer(email);
+		if(customerQuestionAnswers!=null && customerQuestionAnswers.size()==2){
+			if(customerQuestionAnswers.get(0).getAnswer().equals(securityAns1) && 
+					customerQuestionAnswers.get(1).getAnswer().equals(securityAns2)) {
+				status = true;
+			}
+		}
+		return status;
+	}
 	
 	@Override
 	public List<SecurityQuestionsVO>  findAll(){

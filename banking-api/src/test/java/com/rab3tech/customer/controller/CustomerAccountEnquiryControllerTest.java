@@ -2,16 +2,17 @@ package com.rab3tech.customer.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +23,13 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.GetMapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rab3tech.customer.service.impl.CustomerEnquiryService;
 import com.rab3tech.test.TestUtil;
 import com.rab3tech.vo.CustomerSavingVO;
@@ -58,12 +60,13 @@ public class CustomerAccountEnquiryControllerTest {
 		 CustomerSavingVO customerSavingVO2=new CustomerSavingVO(123,"ashish","ashish@gmail.com","92882","NT","Current","Pending","S9393",null,"B435");
 		 customerSavingVOs.add(customerSavingVO1);
 		 customerSavingVOs.add(customerSavingVO2);
+		
 		 when(customerEnquiryService.findAll()).thenReturn(customerSavingVOs);
+		 
 		 mockMvc.perform(get("/v3/customers/enquiry")
 		 .accept(MediaType.APPLICATION_JSON))
          .andExpect(status().isOk())
          .andExpect(jsonPath("$", hasSize(2)))
-         ////[{"csaid":122,"name":"nagendra","email":"nagen@gmail.com"},{{"csaid":123,"name":"ashish","email":"ashish@gmail.com"}}]
          .andExpect(jsonPath("$[0].csaid", is(122)))
          .andExpect(jsonPath("$[0].name", is("nagendra")))
          .andExpect(jsonPath("$[0].email", is("nagen@gmail.com")))
@@ -100,20 +103,28 @@ public class CustomerAccountEnquiryControllerTest {
 		return response;
 	}*/
 	
+	
 	@Test
 	public	void testSaveEnquiryWhenSuccess2() throws Exception {
-		  CustomerSavingVO customerSavingVO=new CustomerSavingVO(0,"nagendra","nagen@gmail.com","02390","NA","Saving","Appoved","C9393",null,"A435");
+		
+		File file = new File("src/test/resources/poc.json");
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		CustomerSavingVO customerSavingVO=objectMapper.readValue(file, CustomerSavingVO.class);
+		
+		  //CustomerSavingVO customerSavingVO=new CustomerSavingVO(0,"nagendra","nagen@gmail.com","02390","NA","Saving","Appoved","C9393",null,"A435");
 		  when(customerEnquiryService.emailNotExist("nagen@gmail.com")).thenReturn(true);
 	 	  when(customerEnquiryService.save(customerSavingVO)).thenReturn(customerSavingVO);
-	 	 mockMvc.perform(MockMvcRequestBuilders.post("/v3/customers/enquiry")
+	 	
+	 	  mockMvc.perform(MockMvcRequestBuilders.post("/v3/customers/enquiry")
 	 	        .contentType(MediaType.APPLICATION_JSON)
 	 	        .content(TestUtil.convertObjectToJsonBytes(customerSavingVO))
 	 			.accept(MediaType.APPLICATION_JSON))
+	 	  		.andDo(print())
 	 			.andExpect(jsonPath("$.name").exists())
 	 			.andExpect(jsonPath("$.email").exists())
 	 			.andExpect(jsonPath("$.name").value("nagendra"))
-	 			.andExpect(jsonPath("$.email").value("nagen@gmail.com"))
-	 			.andDo(print());
+	 			.andExpect(jsonPath("$.email").value("nagen@gmail.com"));
 	 	 
 	 	verify(customerEnquiryService, times(1)).save(customerSavingVO);
  	    verify(customerEnquiryService, times(1)).emailNotExist("nagen@gmail.com");

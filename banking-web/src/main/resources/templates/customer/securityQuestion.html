@@ -36,6 +36,9 @@
       <span th:utext="${message}" style="color: blue;font-size: 18px;font-weight: bold;"></span>
   <div style="width: 70%">
    <form th:action="@{/customer/securityQuestion}" method="POST"  th:object="${customerSecurityQueAnsVO}" >
+     
+    
+   
     <div class="form-group">
       <label for="question1"><b>Security Question1:</b></label>
       <select   class="form-control"  th:field="*{securityQuestion1}" id="securityQuestion1">

@@ -22,13 +22,19 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		
+			<!-- This is to send email using spring boot -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		
 		<!-- Enable health endpoint -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 	 	
-	 <!--    <dependency>
+	<!--   <dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency> 
@@ -68,8 +74,8 @@
 
 
 	</dependencies>
-	
-<!--  <dependencyManagement>
+<!-- 	
+  <dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -79,8 +85,8 @@
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
-	</dependencyManagement> 
- -->
+	</dependencyManagement>  -->
+
 	<build>
 		<plugins>
 			<plugin>

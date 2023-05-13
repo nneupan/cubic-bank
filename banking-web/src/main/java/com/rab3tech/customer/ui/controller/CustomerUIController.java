@@ -10,9 +10,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -32,7 +37,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.rab3tech.customer.service.CustomerProfilePicService;
 import com.rab3tech.customer.service.CustomerService;
 import com.rab3tech.customer.service.CustomerTransactionService;
 import com.rab3tech.customer.service.LocationService;
@@ -42,12 +49,14 @@ import com.rab3tech.customer.service.impl.SecurityQuestionService;
 import com.rab3tech.email.service.EmailService;
 import com.rab3tech.vo.ChangePasswordVO;
 import com.rab3tech.vo.CustomerAccountInfoVO;
+import com.rab3tech.vo.CustomerProfilePicVO;
 import com.rab3tech.vo.CustomerSavingVO;
 import com.rab3tech.vo.CustomerSecurityQueAnsVO;
 import com.rab3tech.vo.CustomerTransactionVO;
 import com.rab3tech.vo.CustomerVO;
 import com.rab3tech.vo.EmailVO;
 import com.rab3tech.vo.FundTransferVO;
+import com.rab3tech.vo.LocationVO;
 import com.rab3tech.vo.LoginVO;
 import com.rab3tech.vo.PayeeInfoVO;
 
@@ -85,8 +94,78 @@ public class CustomerUIController {
 	
 	
 	@Autowired
-   private CustomerTransactionService customerTransactionService;
+    private CustomerTransactionService customerTransactionService;
 	
+	@Autowired
+	private CustomerProfilePicService customerProfilePicService;
+	
+	
+	@PostMapping("/customer/profile/update")
+	public String updateCustomer(int cid,String name,String jobTitle) throws IOException {
+		customerService.updateCustomerProfile(cid, name,jobTitle);
+		return "redirect:/customer/profile";// I will refresh your page
+	}
+	
+	@PostMapping("/customer/profile/photo")
+	public String changeCustomerPhoto(@RequestParam int cid,@RequestParam("pppppphoto") MultipartFile photo,HttpSession session) throws IOException {
+		byte[] bphoto=photo.getBytes();
+		customerService.updatePhoto(cid, bphoto);
+		//This is updating new table which we just created
+		return "redirect:/customer/profile";// I will refresh your page
+	}
+	
+	
+	//Special code to render images by URL
+		@GetMapping("/customer/profile/pic")
+		public void findCustomerPhotoPic(@RequestParam int id,HttpServletResponse response) throws IOException {
+		   byte[] photo=customerProfilePicService.findPicById(id);
+		   response.setContentType("image/png");
+		   ServletOutputStream outputStream=response.getOutputStream();
+		   if(photo!=null) {
+			   //writing photo inside response body 
+			   outputStream.write(photo);
+		   }else {
+			   outputStream.write(new byte[] {});
+		   }
+		   outputStream.flush();
+		   outputStream.close();
+		}
+	
+	//Special code to render images by URL
+	@GetMapping("/customer/profile/photo")
+	public void findCustomerPhoto(@RequestParam int cid,HttpServletResponse response) throws IOException {
+	   byte[] photo=customerService.findPhotoByid(cid);
+	   response.setContentType("image/png");
+	   ServletOutputStream outputStream=response.getOutputStream();
+	   if(photo!=null) {
+		   //writing photo inside response body 
+		   outputStream.write(photo);
+	   }else {
+		   outputStream.write(new byte[] {});
+	   }
+	   outputStream.flush();
+	   outputStream.close();
+	}
+	
+	@GetMapping("/customer/profile")
+	public String showProfile(Model model,HttpSession session){
+		LoginVO  loginVO2=(LoginVO)session.getAttribute("userSessionVO");
+		//userid,username,loginid,emailid
+		String currentLoggedInUserName=loginVO2.getUsername();
+		CustomerVO customerVO=customerService.findCustomerByUsername(currentLoggedInUserName);
+		model.addAttribute("customerVO", customerVO);
+		return "/customer/profile";//profile.html
+	}
+	
+	
+	@GetMapping("/customer/profile/edit")
+	public String showEditProfile(Model model,HttpSession session){
+		LoginVO  loginVO2=(LoginVO)session.getAttribute("userSessionVO");
+		String currentLoggedInUserName=loginVO2.getUsername();
+		CustomerVO customerVO=customerService.findCustomerByUsername(currentLoggedInUserName);
+		model.addAttribute("customerVO", customerVO);
+		return "/customer/eprofile";//eprofile.html
+	}
 	
 	
 	
@@ -130,18 +209,48 @@ public class CustomerUIController {
 	}
 	
 	@GetMapping("/customer/customerTransaction")
-	public String showCustomerTransaction(Model model,HttpSession session) {
+	public String showCustomerTransaction(@RequestParam(required=false) String sort,Model model,HttpSession session) {
 		//Here we have to write logic to fetch data
 		//This is coming from session
 		LoginVO  loginVO2=(LoginVO)session.getAttribute("userSessionVO");
 		String currentLoggedInUserName=loginVO2.getUsername();
 		List<CustomerTransactionVO>  customerTransactionVOs=customerTransactionService.findCustomerTransaction(currentLoggedInUserName);
+		
+		
+		if(sort==null){
+			Collections.sort(customerTransactionVOs,(t1,t2)->t2.getDot().compareTo(t1.getDot()));
+		} 	
+		else{
+			if("desc".equals(sort)) {
+				Collections.sort(customerTransactionVOs,(t1,t2)->(int)(t2.getAmount()-t1.getAmount()));
+			}else {
+				Collections.sort(customerTransactionVOs,(t1,t2)->(int)(t1.getAmount()-t2.getAmount()));
+			}
+			
+		}
 		model.addAttribute("customerTransactionVOs", customerTransactionVOs);
 		//customer/accountSummary - view name
 		return "customer/customerTransaction"; // thyme leaf
-		
 	}
 	
+	@GetMapping("/customer/profilePics")
+	public String showCustomerProfiles(Model model,HttpSession session) {
+		//Here we have to write logic to fetch data
+		//This is coming from session
+		LoginVO  loginVO2=(LoginVO)session.getAttribute("userSessionVO");
+		String currentLoggedInUserName=loginVO2.getUsername();
+		List<CustomerProfilePicVO> customerProfilePicVOs=customerProfilePicService.findAllPic(currentLoggedInUserName);
+		model.addAttribute("customerProfilePicVOs", customerProfilePicVOs);
+		//customer/accountSummary - view name
+		return "customer/customerProfilePic"; // thyme leaf
+	}
+	
+	//<a th:href="@{'/customer/deleteProfilePic?pid='+${customerProfilePic.ppid}}">
+	@GetMapping("/customer/deleteProfilePic")
+	public String deleteProfilePic(@RequestParam int pid,Model model,HttpSession session) {
+		customerProfilePicService.deletePicById(pid);
+		return "redirect:/customer/profilePics"; // thyme leaf
+	}
 
 	
 	@PostMapping("/customer/changePassword")
@@ -206,8 +315,10 @@ public class CustomerUIController {
 	@PostMapping("/customer/account/registration")
 	public String createCustomer(@ModelAttribute CustomerVO customerVO, Model model) {
 		// saving customer into database
-		logger.debug(customerVO.toString());
+		//10:10 AM 
+		logger.debug("Post -> /customer/account/registration is called for customer [{}]",customerVO.toString());
 		customerVO = customerService.createAccount(customerVO);
+		logger.info("Customer registration is done succcessfully");
 		// Write code to send email
 
 		EmailVO mail = new EmailVO(customerVO.getEmail(), "javahunk2020@gmail.com",
@@ -215,7 +326,7 @@ public class CustomerUIController {
 		mail.setUsername(customerVO.getUserid());
 		mail.setPassword(customerVO.getPassword());
 		emailService.sendUsernamePasswordEmail(mail);
-		System.out.println(customerVO);
+		logger.debug("Email data [{}]",mail.toString());
 		model.addAttribute("loginVO", new LoginVO());
 		model.addAttribute("message", "Your account has been setup successfully , please check your email.");
 		return "customer/login";
@@ -234,6 +345,19 @@ public class CustomerUIController {
 	   outputStream.flush();
 	   outputStream.close();
 	}
+	
+	@PostMapping("/customer/upload/profile/pic")
+	public String changeProfilePic(@RequestParam("description")  String description,@RequestParam("cid")  int cid,@RequestParam("photo") MultipartFile pphoto,HttpSession session) throws IOException {
+		LoginVO  loginVO2=(LoginVO)session.getAttribute("userSessionVO");
+		String currentLoggedInUserName=loginVO2.getUsername();
+		byte[] photo=pphoto.getBytes();
+		customerService.updatePhoto(cid, photo);
+		//This is updating new table which we just created
+		customerProfilePicService.save(currentLoggedInUserName, photo,description);
+		return "redirect:/customer/customerTransaction";
+	}
+	
+	
 
   /*
 	@GetMapping(value = { "/customer/account/enquiry", "/", "/mocha", "/welcome" })
@@ -244,13 +368,23 @@ public class CustomerUIController {
 		return "customer/customerEnquiry"; // customerEnquiry.html
 	}
 */
-    
-    @GetMapping(value = { "/customer/account/enquiry", "/", "/mocha", "/welcome" })
+	 @GetMapping(value = {"/"})
+		public String swagger(Model model) {
+			return "redirect:/swagger-ui.html"; // customerEnquiry.html
+		}
+	
+    @GetMapping(value = { "/customer/account/enquiry","/mocha", "/welcome" })
 	public String showCustomerEnquiryPage(Model model) {
 		//LoadLocationAndAccountVO loadLocationAndAccountVOs = new LoadLocationAndAccountVO();
 		CustomerSavingVO customerSavingVO = new CustomerSavingVO();
-		
 		model.addAttribute("customerSavingVO", customerSavingVO);
+		//Here we can write code to fetch data from database
+		//then add it into request scope
+		List<LocationVO> locationVOs=locationService.findLocations();
+		
+		
+		//Map<String,String> locations =locationVOs.stream().collect(Collectors.toMap(LocationVO::getLcode,LocationVO::getName));
+		model.addAttribute("locations", locationVOs);
 		return "customer/customerEnquiry"; // customerEnquiry.html
 	}
 	
@@ -332,8 +466,9 @@ public class CustomerUIController {
 	}
 	
 	@GetMapping("/customer/registeredPayee")
-	public String registeredPayeeList(Model model) {
-		List<PayeeInfoVO> payeeInfoList = customerService.registeredPayeeList("technohunk100@gmail.com");
+	public String registeredPayeeList(Model model,HttpSession session) {
+		LoginVO loginVO=(LoginVO)session.getAttribute("userSessionVO");
+		List<PayeeInfoVO> payeeInfoList = customerService.registeredPayeeList(loginVO.getUsername());
 		model.addAttribute("payeeInfoList", payeeInfoList);
 		return "customer/registeredPayee";
 		
@@ -349,6 +484,8 @@ public class CustomerUIController {
 	
 	@PostMapping("/customer/fundTransfer")
 	public String fundTransferPost(@ModelAttribute("fundTransferVO") FundTransferVO fundTransferVO, Model model) {
+		
+		
 		return "customer/fundTransferReview";
 	}
 
@@ -359,6 +496,9 @@ public class CustomerUIController {
 		//deduct money from sender and credit to account
 		//Make a transaction history
 		//make a su9mmary etc
+		fundTransferVO=customerService.executeTransaction(fundTransferVO);
+		//Email and SMS functionality
+		model.addAttribute("fundTransferVO", fundTransferVO);
 		return "customer/fundSummary";
 	}
 	

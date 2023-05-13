@@ -56,6 +56,10 @@ public class CustomerStatusController {
 	@GetMapping("/customer/app/status")
 	public CustomerSavingVO findCustomerStatus(@RequestParam String searchText){
 		CustomerSavingVO customerSavingVO =customerEnquiryService.findAppStatus(searchText);
+		if(customerSavingVO==null){
+			customerSavingVO=new CustomerSavingVO();
+			customerSavingVO.setName("NODATA");
+		}
 		return customerSavingVO;
 	}
 	

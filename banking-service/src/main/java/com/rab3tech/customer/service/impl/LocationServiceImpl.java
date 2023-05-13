@@ -34,6 +34,7 @@ public class LocationServiceImpl implements LocationService{
 		for(Location location : locations) {
 			LocationVO locationVO = new LocationVO();
 			BeanUtils.copyProperties(location, locationVO);
+			locationVO.setName(location.getLocation());
 			LoginVO loginVO=new LoginVO();
 			BeanUtils.copyProperties(location.getLogin(), loginVO);
 			loginVO.setUsername(location.getLogin().getLoginid());

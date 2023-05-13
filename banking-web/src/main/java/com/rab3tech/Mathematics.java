@@ -1,12 +1,8 @@
 package com.rab3tech;
 
 public class Mathematics {
-	MathService mathService=new MathService();
 	
-	public void setMathService(MathService mathService) {
-		this.mathService = mathService;
-	}
-
+	
 	public int fact(int num) {
 		//this is making database call!!!!!!!!!!!!!!!!!!!!!!!!!
 		if(num<0) {
@@ -17,6 +13,13 @@ public class Mathematics {
 			sum = sum * x;
 		}
 		return sum;
+	}
+	
+	
+    MathService mathService=new MathService();
+	
+	public void setMathService(MathService mathService) {
+		this.mathService = mathService;
 	}
 	
 	public int add(int  num1,int num2) {

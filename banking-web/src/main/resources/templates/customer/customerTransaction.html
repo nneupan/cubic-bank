@@ -54,19 +54,30 @@
 </a>
 
  <a th:href="@{/customer/logout}"><button type="button" class="btn btn-warning">Logout</button></a>
+ <a th:href="@{/customer/profilePics}"><button type="button" class="btn btn-warning">Profile Pics</button></a>
  <br/>
   <img th:src="@{/images/bubble.png}" alt="page"/>
+   
+    <img class="zoom" th:src="@{'/customer/profile/photo?cid=' + ${session.userSessionVO.cid}}" style="height: 120px;"/>
+    
+    <img th:src="@{/images/pencil.png}" alt="page"  data-toggle="modal" data-target="#changePhoto"/>
+   
     <hr/>
    <h2> From Account :</h2>
     <b>009282736363563</b>
    <span th:utext="${fromAccount}" style="color: red;font-size: 18px;">
    </span>
   <div style="width: 85%">
+      
      <table class="table table-bordered" style="width: 100%;">
            <tr style="background-color: #95c929;">
              <td>SNO</td>
              <td>To Account</td>
-             <td>Amount</td>
+             <td>Amount
+              <a th:href="@{/customer/customerTransaction?sort=desc}"><button type="button" class="btn btn-warning">desc</button></a>
+                 <a th:href="@{/customer/customerTransaction?sort=asc}"><button type="button" class="btn btn-primary">asc</button></a>
+             
+             </td>
              <td>Details</td>
               <td>DOT</td>
               <td>Status</td>
@@ -75,7 +86,8 @@
            <tr th:each="customerTransaction,iter: ${customerTransactionVOs}">
              <td th:text="${iter.index+1}"/>
              <td th:text="${customerTransaction.toAccout}"/>
-              <td th:text="${customerTransaction.amount}"/>
+              <td th:text="${customerTransaction.amount}+' $'">
+               </td>
               <td th:text="${customerTransaction.details}"/>
              <td th:text="${customerTransaction.dot}"/>
            <td th:text="${customerTransaction.txStatus}"/>
@@ -85,10 +97,72 @@
   <a th:href="@{/customer/sendAccountStmt}">
 <button type="button" class="btn btn-primary">Send Email</button>
 </a>
+<button type="button" class="btn btn-primary">Export as PDF</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#chartModal">Show Chart</button>
   </div>
 </div>
 <footer  class="ffooter">
 </footer>
+
+
+<!-- The Modal -->
+<div class="modal" id="chartModal">
+  <div class="modal-dialog" style="width: 900px;">
+    <div class="modal-content" style="width: 900px;">
+   
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Customer Transaction!</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <img th:src="@{/customer/barChart}" alt="page"/>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="changePhoto">
+  <div class="modal-dialog" style="width: 900px;">
+    <div class="modal-content" style="width: 900px;">
+    
+    <!-- 
+    enctype ,  means you want to upload file  
+     -->
+  <form  th:action="@{/customer/upload/profile/pic}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="cid"  th:value="${session.userSessionVO.cid}">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Edit Profile PC!</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <input type="file" name="photo" class="form-control">
+         <hr/>
+        <label>Description</label>
+        <input type="text" name="description" class="form-control" style="background-color: #fffdf8;">
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+</form>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

@@ -18,8 +18,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.rab3tech.common.service.BranchService;
 import com.rab3tech.customer.service.LoginService;
 import com.rab3tech.customer.service.impl.SecurityQuestionService;
+import com.rab3tech.vo.BranchVO;
 import com.rab3tech.vo.CustomerSecurityQueAnsVO;
 import com.rab3tech.vo.LoginVO;
 import com.rab3tech.vo.SecurityQuestionsVO;
@@ -32,6 +34,19 @@ public class LoginController {
 	
 	@Autowired
 	private SecurityQuestionService securityQuestionService;
+	
+	
+	@Autowired
+	private BranchService branchService;
+		
+	
+	@GetMapping("/bank/showBranch")
+	public String getBranches(Model model){
+		List<BranchVO> branchVOs=branchService.findAll();
+		//branchVOs is adding into request scope
+		model.addAttribute("branchVOs", branchVOs);
+		return "customer/branch";
+	}
 	
 	@GetMapping(value= {"/customer/login","/logout/success","/clogin"})
 	public String showCustomerLogin(@RequestParam(value="error",required=false) boolean messsage,Model model) {

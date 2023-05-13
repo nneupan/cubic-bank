@@ -36,7 +36,7 @@ public class Login {
 	private Date passwordExpire;
 	private String token;
 	private List<CustomerQuestionAnswer> customerQuestionAnswers;
-	
+	private List<CustomerProfilePicEntity> customerProfilePics;
 	
 	private Set<Role> roles;
 	 
@@ -66,6 +66,16 @@ public class Login {
 
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
+	}
+	
+	
+	@OneToMany(mappedBy="login",cascade=CascadeType.ALL)
+	public List<CustomerProfilePicEntity> getCustomerProfilePics() {
+		return customerProfilePics;
+	}
+
+	public void setCustomerProfilePics(List<CustomerProfilePicEntity> customerProfilePics) {
+		this.customerProfilePics = customerProfilePics;
 	}
 
 	@OneToMany(mappedBy="login",cascade=CascadeType.ALL) // login is an attribute present inside CustomerQuestionAnswer entity

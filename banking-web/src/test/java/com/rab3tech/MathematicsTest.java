@@ -7,14 +7,15 @@ import org.junit.Test;
 
 public class MathematicsTest {
 	
-	private Mathematics mathematics=null;
+	private Mathematics mathematics;
 	
 	@Before
-	public void init() {
+	public void modest() {
 		 mathematics=new Mathematics();
 	}
 	
 	//Here we are validating method output against input
+	//This is called test case
 	@Test
 	public void  testFactWhenInputZero() {
 		int actual=mathematics.fact(TestCaseConstant.ZERO);

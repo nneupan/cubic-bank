@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Credit Cards</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  
+  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+  
+  
+ 
+   
+  <script type="text/javascript">
+  $(document).ready(function() {
+       // $('#enquiryList').DataTable();
+    } );
+  </script>
+  
+  <style>
+.ffooter {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: red;
+  color: white;
+  text-align: center;
+  height: 30px;
+  background-color:#e9ffe7;
+}
+#cards 
+tbody tr{
+	display:none;
+}
+
+</style>
+
+<script type="text/javascript">
+  
+function clearMsg(){
+	   $("#errorMessage").html("");
+}  
+
+function generateCard(){
+	var name= $("#tname").val();
+	var email=$("#temail").val();
+	
+	$("#photophoto2").attr("src","/customers/credit/card?name="+name+"&email="+email);
+	
+	
+}
+
+function openCreditCard(name,email,userid){
+ $("#tname").val(name);
+ $("#temail").val(email);
+ $("#sname").html(name);
+ $("#creditCardGenPopup").modal('show');
+}
+
+  
+</script>
+
+</head>
+<body>
+
+
+<header style="height: 30px;background-color: maroon;color:white;">
+ 
+</header>
+<div class="container">
+  <br/><br/>
+ <a th:href="@{/customer/login}"><button type="button" class="btn btn-warning">Login</button></a>
+ <br/>
+  <marquee scrolldelay="50" behavior="alternate">
+  <img th:src="@{/images/branch.png}" alt="page"/>
+  </marquee>
+  <div style="width: 100%">
+ <hr/>
+ <a th:href="@{/admin/creditcards/addCard}"><button type="button" class="btn btn-primary">Add Card</button></a>
+ <hr/>
+ 
+    <table id="cards" class="table table-striped table-bordered" style="width:100%">
+  <thead>
+  <tr>
+  <td> Name
+  <a th:href="@{/admin/creditcards/showCards?sort=sortByNameAsscending}"> <img th:src="@{/images/down.png}" style="height:20px;float:right"> </a>
+  	<a th:href="@{/admin/creditcards/showCards?sort=sortByNameDecending}"> <img th:src="@{/images/up.png}" style="height:20px;float:right"> </a>
+  </td>
+  <td> Code   </td>
+  <td> Type
+   <a th:href="@{/admin/creditcards/showCards?sort=sortByTypeAsscending}"> <img th:src="@{/images/down.png}" style="height:20px;float:right" /></a> 
+  <a th:href="@{/admin/creditcards/showCards?sort=sortByTypeDecending}"> <img th:src="@{/images/up.png}" style="height:20px;float:right" /></a> 
+   </td>
+   <td>Image</td>
+   <td>Description</td>
+  
+  </tr>
+  </thead>
+ 
+  <tbody>
+  <tr th:each="cardDTOs,iter: ${cardDTOs}">
+    <td th:text="${cardDTOs.name}"/>
+    <td th:text="${cardDTOs.code}"/>
+    <td th:text="${cardDTOs.type}"/>
+    <td>
+    <img th:src="${cardDTOs.imageUri}" style="height:120px;"/>
+    </td>
+    <td th:text="${cardDTOs.description}"/>
+   
+    
+    <td>
+       <a th:href="@{'/admin/creditcards/deleteCard?name='+${cardDTOs.name}}"> 
+ 		 <button type="button" class="btn btn-danger">DELETE</button>
+ 	 </a>
+     </td>
+    
+   
+  </tr>
+  </tbody>
+  </table>
+  <br/>
+  <hr/>
+  </div>
+</div>
+<footer  class="ffooter">
+</footer>
+
+
+    <script>
+   $(document).ready(function(){
+	    $('#cards').after('<div class="nav" id="nav"></div>');
+	    var rowsShown = 2;
+	    var rowsTotal = $('#cards tbody tr').length;
+	    
+	    var numPages = rowsTotal/rowsShown;
+	    $('#nav').append('<ul  id="list" class="pagination  justify-content-center">');
+	    for(i = 0;i < numPages;i++) {
+	        var pageNum = i + 1;
+	        $('#list').append('<li id="li'+i+'" class="page-item"><a class="page-link" href="javascript:void()" rel="'+i+'">'+pageNum+'</a></li> ');
+	    }
+	    $('#nav').append('</ul>');
+	    $('#cards tbody tr').hide();
+	    $('#cards tbody tr').slice(0, rowsShown).show();
+	    $('#list li:first').addClass('active');
+        $('#list li a').bind('click', function(){
+
+            $('#list li ').removeClass('active');
+            
+            var currPage = $(this).attr('rel');
+           
+            var l = "#li"+currPage;
+            $(l).addClass('active');
+            var startItem = currPage * rowsShown;
+            var endItem = startItem + rowsShown;
+            $('#cards tbody tr').css('opacity','0.0').hide().slice(startItem, endItem).
+                    css('display','table-row').animate({opacity:1}, 300);
+        });
+	});
+    </script>
+  
+
+</body>
+</html>

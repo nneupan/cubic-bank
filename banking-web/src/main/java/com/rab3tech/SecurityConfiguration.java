@@ -3,6 +3,7 @@ package com.rab3tech;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import com.rab3tech.security.service.UserSpringSecuirtyAuthProvider;
 
@@ -44,6 +46,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   @Override 
   protected void configure(HttpSecurity http) throws Exception {   
     http.authorizeRequests() 
+       .antMatchers("/employee/customers/photo").permitAll()
+    	.antMatchers("/v3/user/login").permitAll()
+        .antMatchers("/admin/loantypes").permitAll() 
+        .antMatchers("/admin/loantypes").permitAll() 
+        .antMatchers("/admin/dloantype").permitAll()
+        .antMatchers("/admin/loantype").permitAll() 
+        .antMatchers("/admin/addBranch").permitAll() 
+        .antMatchers("/admin/creditcards/**").permitAll() 
+        .antMatchers("/admin/deleteBranch").permitAll() 
         .antMatchers("/admin/**").hasAuthority("ADMIN").
         antMatchers("/employee/**").hasAnyAuthority("EMPLOYEE","ADMIN").
         /*   antMatchers("/customer/**").hasAnyAuthority("CUSTOMER","EMPLOYEE","ADMIN").*/
@@ -66,7 +77,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     .deleteCookies("JSESSIONID");
 
    // http.sessionManagement().invalidSessionUrl("/customer/timeout");
-    //http.sessionManagement().maximumSessions(2);
+    http.sessionManagement()
+    .maximumSessions(1)
+    .maxSessionsPreventsLogin(true);
     
 
     /* http.authorizeRequests()*/
@@ -80,8 +93,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     .and()
     .csrf().disable();*/
   } 
-  
  
+  @Bean
+  HttpSessionEventPublisher httpSessionEventPublisher() {
+      return new HttpSessionEventPublisher();
+  }
+  
   /*@Bean
   public AuthenticationFailureHandler customAuthenticationFailureHandler() {
       return new LoginFailureUserAuthHandler(springSecurityService);

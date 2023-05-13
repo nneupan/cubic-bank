@@ -1,8 +1,11 @@
 package com.rab3tech.customer.employee.controller;
 
+import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +44,20 @@ public class EmployeeUIController {
 	@Autowired
 	private EmailService emailService;
 	
+	@GetMapping("/employee/customers/photo")
+	public void findCustomerPhoto(@RequestParam int cid,HttpServletResponse response) throws IOException {
+	   byte[] photo=customerService.findPhotoByid(cid);
+	   response.setContentType("image/png");
+	   ServletOutputStream outputStream=response.getOutputStream();
+	   if(photo!=null) {
+		   outputStream.write(photo);
+	   }else {
+		   outputStream.write(new byte[] {});
+	   }
+	   outputStream.flush();
+	   outputStream.close();
+	}
+	
 	
 	@GetMapping("/customer/lock")
 	public String customerLock(@RequestParam String userid) {
@@ -62,10 +79,33 @@ public class EmployeeUIController {
 	   return "redirect:/employee/customerList";
 	}
 	
+	
+	@GetMapping("/employee/ecustomer")
+	public String enableCustomer(@RequestParam String userid, Model model) {
+		customerService.updateCustomerLockStatus(userid, "no");
+		List<CustomerVO> customerVOs = null;
+		customerVOs = customerService.findCustomers();
+		model.addAttribute("customerVOs", customerVOs);
+		return "employee/customersList";
+	}
+
+	@GetMapping("/employee/dcustomer")
+	public String disbleCustomer(@RequestParam String userid, Model model) {
+		customerService.updateCustomerLockStatus(userid, "yes");
+		List<CustomerVO> customerVOs = null;
+		customerVOs = customerService.findCustomers();
+		model.addAttribute("customerVOs", customerVOs);
+		return "employee/customersList";
+	}
+	
 	@GetMapping("/employee/customerList")
-	public String showCustomerList(Model model) {
-	   List<CustomerVO> customerVOs=customerService.findCustomers();
-	   model.addAttribute("customerVOs", customerVOs);
+	public String showCustomerList(@RequestParam(required = false) String filter, Model model) {
+		/*
+		 * List<CustomerVO> customerVOs=null; if(filter!=null) {
+		 * customerVOs=customerService.findCustomers(filter); }else {
+		 * customerVOs=customerService.findCustomers(); }
+		 * model.addAttribute("customerVOs", customerVOs);
+		 */
 	   return "employee/customersList";
 	}
 	
