@@ -27,6 +27,7 @@ public class Swagger2Config {
 
     private ApiInfo apiEndPointsInfo() {
 
+    	
         return new ApiInfoBuilder().title("GRC Software For Infosec Risk, Compliance & Audit Management")
             .description("GRC Software For Infosec Risk, Compliance & Audit Management")
             .contact(new Contact("Ctrlmap", "https://www.ctrlmap.com/", "ctrlmap@gmail.com"))
