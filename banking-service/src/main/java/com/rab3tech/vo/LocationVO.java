@@ -12,4 +12,6 @@ public class LocationVO {
 	private Timestamp doe;
 	private Timestamp dom;
 	private LoginVO login;
+	
+	
 }

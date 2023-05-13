@@ -7,7 +7,7 @@ public class Factorial {
 	public Factorial(int num) {
 		this.num = num;
 	}
-	
+	//
 	public int compute() {
 		
 		if(num<0) {

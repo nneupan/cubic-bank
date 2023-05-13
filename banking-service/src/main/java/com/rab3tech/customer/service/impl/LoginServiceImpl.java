@@ -75,8 +75,11 @@ public class LoginServiceImpl implements LoginService {
 		loginVO.setUsername(loginid);
 		Optional<Login>  optional=loginRepository.findByLoginid(loginid);
 		if(optional.isPresent()) {
+			
+			int cid=customerRepository.findByEmail(loginid).get().getId();
 			Login login=optional.get();
 			loginVO.setEmail(login.getEmail());
+			loginVO.setCid(cid);
 			loginVO.setUsername(login.getLoginid());
 			loginVO.setPassword(login.getPassword());
 			loginVO.setLocked(login.getLocked());
@@ -141,6 +144,17 @@ public class LoginServiceImpl implements LoginService {
 		}else {
 			return Optional.empty();
 		}
+	}
+	
+	
+	@Override
+	public RoleVO saveRole(RoleVO roleVO){
+		Role role=new Role();
+		role.setDescription(roleVO.getDescription());
+		role.setName(roleVO.getName());
+		Role drole=roleRepository.save(role);
+		roleVO.setId(drole.getRid());
+		return roleVO;
 	}
 	
 	@Override

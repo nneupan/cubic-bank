@@ -1,11 +1,27 @@
 package com.rab3tech.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+//This is my JUnit class
 public class FactorialTest {
-
+	
+	
+	@Before
+	public void ahahah(){
+		System.out.println(")@)@)@)@");
+	}
+	
+	
+	@After
+	public void dee(){
+		System.out.println(")@)@)@)@");
+	}
+	
 	@Test
 	public void testComputeWhenNum3() {
 		Factorial factorial=new Factorial(3);
@@ -43,6 +59,11 @@ public class FactorialTest {
 	public void testComputeWhenNumNegative() {
 		Factorial factorial=new Factorial(-4);
 		factorial.compute();
+	}
+	
+	@Ignore
+	@Test(expected = ArithmeticException.class)
+	public void testComputeWhenNumNegative2() {
 	}
 
 }

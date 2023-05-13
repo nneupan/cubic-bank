@@ -30,100 +30,98 @@
 
 <script type="text/javascript">
 
+//loading all the data through ajax
+filterEmployee('all');
 
-   function updateRole() {
-	   var tcid=$("#ceid").val();
-	   var trolesid = []; // JavaScript style to declare the Array
-       $("input[type='checkbox'][id='rolecheckbox']:checked").each(function(i) {
-    	   trolesid.push($(this).val());
-       });
-	   console.log(trolesid);  
-   	   //Create JavaScript object 
-   	   var obj={cid:tcid,rolesid:trolesid}; //List<Integer> rolesid
-   	   
-    	   //convert above object into JSON
-   	   var jsonData=JSON.stringify(obj);
-    	  
-    	   //Creating 
-    	   const options = {
-                   method: 'PUT',
-                   body: jsonData,
-                   headers: {
-                     'Content-Type': 'application/json',
-                     'Accept': 'application/json'
-                   }
-                 };
-    	   
-    	   var promise=fetch("/v3/customer/roles",options);
-    	   promise.then(response=>response.json())
-    	   .then(function(data){
-				 if(data.status=='success'){
-					 $("#rolesModal").modal('hide');
-					 $("#mmessage").html(data.message);
-					
-				 }
-    	   });
-   }
-   
- 
-    //currentRoles=[1,2]
-   function isRoleMatch(currentRoles,roleid){ //2
-	   for(var t=0;t<currentRoles.length;t++) {
-		    if(currentRoles[t]==roleid){
-		    	return true;
-		    }
-	   }
-	   return false;
-   }
-
-   function openRolesPopup(cid,name,userid){
-	   //fetch all the roles from database
-	    //make ajax call
-    	   //usernameOrEmail="+usernameEmail sending data as query string
-	        var promise= fetch("/v3/customer/roles?userid="+userid); 	
-	        promise.then(response=>response.json()).then(function(data){
-	        	console.log(data);
-	        	var contents="";
-	        	//roleVOs
-	        	var currentRoles=data.currentRoles;
-	        	for(var i =0; i<data.roleVOs.length;i++) {
-                    var rowdata=data.roleVOs[i];
-                    console.log(rowdata);
-                    contents=contents+'<tr>';
-                    contents=contents+'<td>'+rowdata.id+'</td>';
-                    contents=contents+'<td>'+rowdata.name+'</td>';
-                    contents=contents+'<td>'+rowdata.description+'</td>';
-                    if(isRoleMatch(currentRoles,rowdata.id)) {
-                    	contents=contents+'<td><input checked type="checkbox" id="rolecheckbox" name="checkbox" value="'+rowdata.id+'"></td>';	
-                    }else{
-                    	contents=contents+'<td><input  type="checkbox" id="rolecheckbox" name="checkbox" value="'+rowdata.id+'"></td>';	
-                    }
-                    contents=contents+'</tr>';
-	        	}
-	        	$("#ceid").val(cid);
-	        	$("#roleContents").html(contents);
-	        });
-	 	   
-		   $("#photoIdWithRoleModal").attr("src","/admin/customers/photo?cid="+cid);
-	      $("#rolesModal").modal('show');
-   }
+ function filterEmployee(filter){
+	 
+	 //Making ajax call - GET
+	 //POST 
+	 //PUT  //when we update the resource
+	 //DELETE -deleting the resource
+	 //PATCH -Partial update
+	 fetch("/v3/employee/customerList?filter="+filter).then(data=>data.json()).then(data=>{
+		 console.log(data);
+		 
+		 var dcontent="";
+		 
+		 for(var x=0;x<data.length;x++) {
+		       rowdata=data[x];
+		       dcontent=dcontent+"<tr>";
+		       dcontent=dcontent+"<td>"+(x+1)+"</td>";
+		       dcontent=dcontent+"<td>"+rowdata.name+"</td>";
+		       dcontent=dcontent+"<td>"+rowdata.email+"</td>";
+		       dcontent=dcontent+"<td>"+rowdata.role+"</td>";
+		       dcontent=dcontent+'<td><img style="height:80px;" src="/employee/customers/photo?cid='+rowdata.id+'"></td>';
+		       dcontent=dcontent+"<td>";
+		       if(rowdata.locked=="no") {
+		    	   dcontent=dcontent+'<button onclick="lockUnlock(\'en\','+rowdata.id+',\''+rowdata.email+'\');" type="button" id="en_'+rowdata.id+'"  class="btn btn-primary">EN</button>';
+		    	   dcontent=dcontent+'<button style="display:none" onclick="lockUnlock(\'ds\','+rowdata.id+',\''+rowdata.email+'\');" type="button" id="ds_'+rowdata.id+'"  class="btn btn-danger">DS</button>';
+		    	   
+		       }else{
+		    	   dcontent=dcontent+'<button style="display:none" onclick="lockUnlock(\'en\','+rowdata.id+',\''+rowdata.email+'\');" type="button" id="en_'+rowdata.id+'"  class="btn btn-primary">EN</button>';
+		    	   dcontent=dcontent+'<button onclick="lockUnlock(\'ds\','+rowdata.id+',\''+rowdata.email+'\');" type="button" id="ds_'+rowdata.id+'"  class="btn btn-danger">DS</button>';
+		       }
+		       dcontent=dcontent+"</td>";
+		       dcontent=dcontent+"</tr>";
+		 }
+		 
+		 document.getElementById("tashish").innerHTML=dcontent;
+		 
+	 });
+ }
   
-   function openModal(cid,name,mobile){
-	   console.log("cid = "+cid);
-	   console.log("name = "+name);
-	   console.log("mobile = "+mobile);
-	   //<img  src=""
-	   //JavaScript code to render the image
-	   
-	   $("#photophoto").attr("src","/admin/customers/photo?cid="+cid);
-	   $("#cid").val(cid);
-	   $("#pname").val(name);
-	   $("#pmobile").val(mobile);
-	   
-	   $("#editProfilePopup").modal('show');
-	   
-   }
+  
+  
+  //en    ,12 , nagendra.yadav.niit@gmail.com
+  function lockUnlock(buttonStatus,cid,userid) {
+		console.log(buttonStatus);
+		console.log(cid);
+		//en12
+		var btId=buttonStatus+"_"+cid;
+		
+		//hiding current button which is clicked
+		document.getElementById(btId).style.display = "none";
+		
+		var secondButton="en_"+cid;
+		var status="yes";
+		if(buttonStatus=='ds') { //current button is disable the  make it status = "no" means enable - unlocked 
+			status="no";
+		}else{
+			secondButton="ds_"+cid;
+		}
 
+		//show the button which id is secondButton
+		document.getElementById(secondButton).style.display = "block";
+
+		var queryString="?userid="+userid+"&status="+status;
+		//This is called passing data into query string
+		fetch("/v3/customer/lockunlock"+queryString).then(res=>res.json()) //reading json from the response
+		.then(data=> { //accessing passed json data as JavaScript object
+			if(data.status=="success"){
+				if(status=="no") {
+					document.getElementById("mmessage").innerHTML="Ahaha Customer is unlocked!!!!!!";	
+				}else {
+				  document.getElementById("mmessage").innerHTML="Ahaha Customer is locked!!!!!!";
+				}	
+			} else{
+				document.getElementById("mmessage").innerHTML="Sorry some error occurs at server while lock and unlock!";	
+			}
+		});
+		
+		
+		/* @GetMapping("/customer/lockunlock")
+		public ApplicationResponseVO customerLock(String userid,String status) {
+			   customerService.updateCustomerLockStatus(userid, status);
+			   ApplicationResponseVO applicationResponseVO=new ApplicationResponseVO();
+			   applicationResponseVO.setCode(200);
+			   applicationResponseVO.setStatus("success");
+			   applicationResponseVO.setMessage("Lock status is updated!");
+			   return applicationResponseVO;
+		}
+		 */
+		
+  }
 
 </script>
 
@@ -156,10 +154,15 @@
 <button type="button" class="btn btn-warning">Logout</button>
 </a>
    <hr/>
-   <span th:utext="${error}" style="color: red;font-size: 18px;" id="mmessage"></span>
+   <span th:utext="${error}" style="color: red;font-size: 18px;font-weight: bold;" id="mmessage"></span>
    <hr/>
   <div style="width: 100%">
   <h2>Customer List!</h2>
+ 		 <button type="button" class="btn btn-primary" onclick="filterEmployee('employee');">EMPLOYEE</button>
+ 	  &nbsp;
+ 		 <button type="button" class="btn btn-warning" onclick="filterEmployee('customer');">CUSTOMER</button>
+ 	 &nbsp;
+ 		 <button type="button" class="btn btn-success" onclick="filterEmployee('all');">ALL</button>
  <hr/>
     <table  class="table table-striped table-bordered" style="width:100%">
   <thead>
@@ -167,31 +170,35 @@
   <td> SNO </td>
   <td> Name </td>
   <td> Email </td>
-   <td> Userid </td>
+   <td> Role </td>
    <td> Photo </td>
    <td> Action </td>
   </tr>
   </thead>
-  <tbody>
-  <tr th:each="customerVO,iter: ${customerVOs}">
-  
+  <tbody id="tashish">
+  <!-- <tr th:each="customerVO,iter: ${customerVOs}">
     <td>
       <span th:utext="${iter.index+1}"></span>
-      
-      
     </td>
     <td th:text="${customerVO.name}">
     <td th:text="${customerVO.email}"/>
-    <td th:text="${customerVO.userid}"/>
+    <td th:text="${customerVO.role}"/>
     <td>
-    <img th:src="@{'/admin/customers/photo?cid=' + ${customerVO.id}}" style="height: 100px;"/>
+    <img th:src="@{'/employee/customers/photo?cid=' + ${customerVO.id}}" style="height: 60px;"/>
     </td>
      <td>
-       <a th:href="@{'/customer/deleteCustomer?userid='+${customerVO.userid}}"> 
- 		 <button type="button" class="btn btn-primary">DELETE</button>
- 	 </a>
+     <div th:switch="${customerVO.locked}"> 
+  <p th:case="'yes'">  
+ 		 <button type="button" th:id="@{'ds_' + ${customerVO.id}}"  th:onclick="|lockUnlock('ds','${customerVO.id}','${customerVO.email}')|"  class="btn btn-danger">DS</button>
+ 		 <button type="button" th:id="@{'en_' + ${customerVO.id}}" th:onclick="|lockUnlock('en','${customerVO.id}','${customerVO.email}')|"  class="btn btn-primary" style="display:none;">EN</button>
+ 	 </p>
+  <p th:case="'no'">
+   <button type="button" th:id="@{'en_' + ${customerVO.id}}" th:onclick="|lockUnlock('en','${customerVO.id}','${customerVO.email}')|"  class="btn btn-primary" >EN</button>   
+        <button type="button" th:id="@{'ds_' + ${customerVO.id}}"  th:onclick="|lockUnlock('ds','${customerVO.id}','${customerVO.email}')|"  class="btn btn-danger" style="display:none;">DS</button>
+ 	 </p>
+</div>
      </td>
-  </tr>
+  </tr> -->
   </tbody>
   </table>
   <br/>

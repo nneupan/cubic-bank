@@ -2,7 +2,7 @@ package com.test;
 
 public class Palindrome {
 	
-	//a
+	//madam
 	public boolean isPal(String name) {
 		if (name == null || name.length() == 0) {
 			throw new RuntimeException("Sorry input length cannot be zero!");

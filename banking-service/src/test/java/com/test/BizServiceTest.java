@@ -16,7 +16,7 @@ public class BizServiceTest {
 	private Utils utils;
 	
 	@InjectMocks
-	private BizService bizService=new BizService();
+	private BizService bizService;
 	
 	@Before
 	public void init() {
@@ -27,6 +27,7 @@ public class BizServiceTest {
 	public void testMagicWhenBlankInput() {
 		//Mocking the method
 		when(utils.genString(any(String.class))).thenReturn("FOOL");
+		
 		String result=bizService.magic("Hmm");
 		assertEquals("FOOL THANK YOU", result);
 	}

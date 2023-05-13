@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +44,13 @@ public class RoleController {
 		return roleVO;
 	}
 	
+	
+	//@RequestBody ->> it reads json data from incoming  reauest payload then populate into java object
+	@PostMapping("/roles")
+	@ResponseStatus(HttpStatus.OK)
+	public RoleVO createRoles(@RequestBody RoleVO roleVO) {
+		return loginService.saveRole(roleVO);
+	}
 	
 	@GetMapping("/roles")
 	@ResponseStatus(HttpStatus.OK)

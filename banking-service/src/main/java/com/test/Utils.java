@@ -12,6 +12,7 @@ public class Utils {
 	 */
 	public String genString(String name){
 		//Assume this is making connection with database
+		//it is fetching data from database
 		return "MR. "+name.toUpperCase();
 	}
 

@@ -11,4 +11,8 @@ public interface SecurityQuestionService {
 
 	void save(CustomerSecurityQueAnsVO customerSecurityQueAnsVO);
 
+	List<String> findQuestionAnswer(String email);
+
+	boolean validateQuestionAnswer(String email,String securityAns1,String securityAns2);
+
 }

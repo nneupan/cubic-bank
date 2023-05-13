@@ -1,13 +1,51 @@
 package com.rab3tech.vo;
 
+import java.sql.Timestamp;
+
 public class FundTransferVO {
+	private String sfromAccount;
+	private String stoAccount;
 	private String fromAccount;
 	private String toAccount;
 	private String remarks;
 	private double amount;
 	private int otp;
+	private Timestamp dot;
+	private String transactionId;
 	
 	
+
+	public Timestamp getDot() {
+		return dot;
+	}
+
+	public void setDot(Timestamp dot) {
+		this.dot = dot;
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public String getSfromAccount() {
+		return sfromAccount;
+	}
+
+	public void setSfromAccount(String sfromAccount) {
+		this.sfromAccount = sfromAccount;
+	}
+
+	public String getStoAccount() {
+		return stoAccount;
+	}
+
+	public void setStoAccount(String stoAccount) {
+		this.stoAccount = stoAccount;
+	}
 
 	public int getOtp() {
 		return otp;

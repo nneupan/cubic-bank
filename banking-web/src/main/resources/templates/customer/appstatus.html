@@ -25,12 +25,12 @@
 
  <script type="text/javascript">
  
- 
-        $(document).ready(function(){
+        $(document).ready(function() {
         	
         	$("#checkStatus").click(function(){
+        		
         		 var searchText=$("#appIdEmail").val();
-                 console.log("searchText = "+searchText);
+                 console.log("search11Text = "+searchText);
                  //AJAX Call to fetch data
                  //Rest API call
                  //v3/customer/app/status
@@ -48,16 +48,27 @@
                  promise.then(response=>{
                  	             return response.json();
                  	     }).then(function(data){
-                 	 var pppdata ={name:"Nagendra",email:"929292"};
-                 	 $("#pname").html(data.name);
-                 	 $("#pemail").html(data.email);
-                 	 $("#pmobile").html(data.mobile);
-                 	 $("#paccountType").html(data.accType);
-                 	 $("#pstatus").html(data.status);
-                 	 $("#pdtable").show()
-                 });
+                 	 console.log(data);   	 
+                 	 if(data.name=="NODATA"){
+                 		  $("#pdtable").hide();
+                 		  $("#errorMessage").html("Sorry! this record does not exist , please check it!!");
+                 		  
+                 	 }else{
+                 		 //data =	 {name:"Nagendra",email:"ajaja@gmailom"};
+                     	 $("#pname").html(data.name);
+                     	 $("#pemail").html(data.email);
+                     	 $("#pmobile").html(data.mobile);
+                     	 $("#paccountType").html(data.accType);
+                     	 $("#pstatus").html(data.status);
+                     	 
+                     	 $("#pdtable").show();	 
+                 	 }
+                 	
+                 }).catch(error => {
+                     console.log(error);
+                 })
         		
-        	});
+        	}); //end of anonymous function
         	
         });  
  
@@ -106,21 +117,21 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th id="pname">Nagendra</th>
+        <th id="pname"></th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>Email</td>
-        <td id="pemail">doe@gmail.com</td>
+        <td id="pemail"></td>
       </tr>
       <tr>
         <td>Mobile</td>
-        <td id="pmobile">2342342</td>
+        <td id="pmobile">44</td>
       </tr>
       <tr>
         <td>A/C Type</td>
-        <td id="paccountType">Saving!!!!!!!!</td>
+        <td id="paccountType"></td>
       </tr>
       
       <tr>

@@ -73,11 +73,10 @@
    <div class="form-group">
       <label for="location">Location:</label>
       <select style="width: 80%;"  class="form-control" th:field="*{location}">
-         <option value="Fremont">Fremont</option>
-         <option value="California">California</option>
+         <option   th:value="${loca.lcode}" th:text="${loca.name}"  th:each="loca: ${locations}"/>
       </select>
     </div>
-   
+ 
     <button type="submit" class="btn btn-primary">Submit Enquiry</button>
     <a th:href="@{/customer/login}"> 
     <button type="button" class="btn btn-danger">Login</button>

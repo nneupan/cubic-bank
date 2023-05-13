@@ -28,6 +28,8 @@ public interface LoginService {
 	List<RoleVO> findRolesByUserid(String userid);
 
 	String updateCustomerRoles(RolesUpdateRequest rolesUpdateRequest);
+
+	RoleVO saveRole(RoleVO roleVO);
 	
 
 }

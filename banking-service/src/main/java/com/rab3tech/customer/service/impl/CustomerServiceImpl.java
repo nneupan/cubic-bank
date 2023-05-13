@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.rab3tech.admin.dao.repository.AccountStatusRepository;
 import com.rab3tech.admin.dao.repository.AccountTypeRepository;
 import com.rab3tech.admin.dao.repository.MagicCustomerRepository;
-import com.rab3tech.aop.advice.TimeLogger;
 import com.rab3tech.customer.dao.repository.CustomerAccountApprovedRepository;
 import com.rab3tech.customer.dao.repository.CustomerAccountEnquiryRepository;
 import com.rab3tech.customer.dao.repository.CustomerAccountInfoRepository;
@@ -35,6 +36,7 @@ import com.rab3tech.dao.entity.Customer;
 import com.rab3tech.dao.entity.CustomerAccountInfo;
 import com.rab3tech.dao.entity.CustomerSaving;
 import com.rab3tech.dao.entity.CustomerSavingApproved;
+import com.rab3tech.dao.entity.CustomerTransaction;
 import com.rab3tech.dao.entity.Login;
 import com.rab3tech.dao.entity.PayeeInfo;
 import com.rab3tech.dao.entity.PayeeStatus;
@@ -43,13 +45,14 @@ import com.rab3tech.email.service.EmailService;
 import com.rab3tech.mapper.CustomerMapper;
 import com.rab3tech.utils.AccountStatusEnum;
 import com.rab3tech.utils.PasswordGenerator;
+import com.rab3tech.utils.TransactionIdGeneratorUtils;
 import com.rab3tech.utils.Utils;
 import com.rab3tech.vo.AccountTypeVO;
 import com.rab3tech.vo.CustomerAccountInfoVO;
-import com.rab3tech.vo.CustomerSavingVO;
 import com.rab3tech.vo.CustomerUpdateVO;
 import com.rab3tech.vo.CustomerVO;
 import com.rab3tech.vo.EmailVO;
+import com.rab3tech.vo.FundTransferVO;
 import com.rab3tech.vo.PayeeApproveVO;
 import com.rab3tech.vo.PayeeInfoVO;
 import com.rab3tech.vo.RoleVO;
@@ -58,6 +61,9 @@ import com.rab3tech.vo.UpdatePayeeVO;
 @Service
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
+	
+
+	private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
 	@Autowired
 	private MagicCustomerRepository customerRepository;
@@ -97,6 +103,30 @@ public class CustomerServiceImpl implements CustomerService {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Override
+	public FundTransferVO executeTransaction(FundTransferVO fundTransferVO){
+		System.currentTimeMillis();
+		CustomerTransaction customerTransaction=new CustomerTransaction();
+		customerTransaction.setAmount(fundTransferVO.getAmount());
+		customerTransaction.setBankName("ICICI Bank");
+		customerTransaction.setDetails(fundTransferVO.getRemarks());
+		customerTransaction.setDot(new Timestamp(new Date().getTime()));
+		String fromAccount=fundTransferVO.getFromAccount().split("-")[0];
+		String toAccount=fundTransferVO.getToAccount().split("-")[0];
+		customerTransaction.setFromAccount(fromAccount);
+		customerTransaction.setToAccout(toAccount);
+		customerTransaction.setTransactionSchedule("no");
+		customerTransaction.setTxStatus("PROCESSED");
+		customerTransaction.setTxType("IMMEDIATE");
+		customerTransaction.setTransactionId("TX"+TransactionIdGeneratorUtils.randomDecimalString(16));
+		customerTransactionRepository.save(customerTransaction);
+		fundTransferVO.setFromAccount(fromAccount);
+		fundTransferVO.setToAccount(toAccount);
+		fundTransferVO.setTransactionId(customerTransaction.getTransactionId());
+		fundTransferVO.setDot(customerTransaction.getDot());
+		return fundTransferVO;
+	}
 	
 	//@TimeLogger
 	private CustomerAccountInfoVO createBankAccount(int csaid,String email) {
@@ -150,7 +180,8 @@ public class CustomerServiceImpl implements CustomerService {
 		login.setNoOfAttempt(3);
 		login.setLoginid(customerVO.getEmail());
 		login.setName(customerVO.getName());
-		String genPassword = PasswordGenerator.generateRandomPassword(8);
+//		String genPassword = PasswordGenerator.generateRandomPassword(8);
+		String genPassword = "test@123";
 		customerVO.setPassword(genPassword);
 		login.setPassword(bCryptPasswordEncoder.encode(genPassword));
 		login.setToken(customerVO.getToken());
@@ -167,7 +198,7 @@ public class CustomerServiceImpl implements CustomerService {
 		try {
 		 dcustomer = customerRepository.save(pcustomer);
 		}catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Problem while customer registration [{}]",e.getMessage());
 		}
 		customerVO.setId(dcustomer.getId());
 		customerVO.setUserid(customerVO.getUserid());
@@ -191,6 +222,8 @@ public class CustomerServiceImpl implements CustomerService {
 	public void updateCustomerLockStatus(String userid,String status) {
 		Customer customer=customerRepository.findByEmail(userid).get();
 		customer.getLogin().setLocked(status);
+		
+		//This is code snippet to send email to the user
 		EmailVO  em=new EmailVO();
 		em.setBody("Your account is locked!!!");
 		em.setFrom("javahunk100@gmail.com");
@@ -213,6 +246,29 @@ public class CustomerServiceImpl implements CustomerService {
 		return customers.stream(). //Stream<Customer>
 		map(CustomerMapper::toVO).//Stream<CustomerVO>
 		collect(Collectors.toList()); //List<CustomerVO>
+	}
+	
+
+	//Admin ., ADMIN
+	@Override
+	public List<CustomerVO> findCustomers(String prole) {
+		List<Customer> customers = customerRepository.findAll();
+		 List<CustomerVO> customerVOs=new ArrayList<CustomerVO>(); 
+		 for(Customer customer:customers) {
+			 //Accessing the role of the customer
+			 Set<Role> roles=customer.getLogin().getRoles();
+			 String roleName=null;
+			 for(Role rr:roles) {
+				 roleName=rr.getName();
+				 break;
+			 }
+			 if(prole.equalsIgnoreCase(roleName)) {
+				 CustomerVO customerVO=CustomerMapper.toVO(customer);
+				 customerVO.setRole(roleName);
+				 customerVOs.add(customerVO); 
+			 }
+		  }
+		 return customerVOs;
 	}
 	
 	
@@ -255,6 +311,21 @@ public class CustomerServiceImpl implements CustomerService {
 		Customer customer=customerRepository.findByEmail(customerAccountInfo.getCustomerId().getLoginid()).get();
 		return customer.getImage(); 
 		
+	}
+	
+	
+	/**
+	 * code to upload the image
+	 * @Transactional
+	 */
+	@Override
+	public void updatePhoto(int cid,byte[] photo) {
+		Optional<Customer> optionalCustomer=customerRepository.findById(cid);
+		if(optionalCustomer.isPresent()) {
+			Customer customer=optionalCustomer.get();
+			customer.setImage(photo);
+			//customerRepository.save(customer);
+		}
 	}
 	
 	
@@ -307,6 +378,25 @@ public class CustomerServiceImpl implements CustomerService {
 	   
 	   return result;
    }
+   
+   @Override
+   public CustomerVO findCustomerByUsername(String username){
+	   Optional<Customer> customer =CustomerRepository.findByEmail(username);
+	   CustomerVO customerVO = null;
+	   if(customer.isPresent()) {
+		   customerVO = new CustomerVO();
+		   Customer customerEntity=customer.get();
+		   customerVO.setId(customerEntity.getId());
+		   customerVO.setName(customerEntity.getName().trim());
+		   customerVO.setEmail(customerEntity.getEmail());
+		   customerVO.setUserid(customerEntity.getEmail());
+		   customerVO.setAddress(customerEntity.getAddress());
+		   customerVO.setMobile(customerEntity.getMobile());
+		   customerVO.setJobTitle(customerEntity.getJobTitle());
+	   }
+	   return customerVO;
+   }
+  
    
    @Override
    public  CustomerVO searchCustomer(String searchKey){
@@ -440,6 +530,16 @@ public class CustomerServiceImpl implements CustomerService {
 	public void deletePayee(int payeeId) {
 		//This is deleting entity by id
 		payeeRepository.deleteById(payeeId);
+	}
+
+	@Override
+	public void updateCustomerProfile(int cid, String name, String jobTitle) {
+		Optional<Customer> optionalCustomer=customerRepository.findById(cid);
+		if(optionalCustomer.isPresent()) {
+			Customer customer=optionalCustomer.get();
+			customer.setName(name);
+			customer.setJobTitle(jobTitle);
+		}
 	}
 
 }

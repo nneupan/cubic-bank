@@ -25,5 +25,6 @@ public interface MagicCustomerRepository extends JpaRepository<Customer, Integer
 	@Modifying
     @Query("DELETE Customer c WHERE c.login.loginid = ?1")
 	public void deleteByUserid(String  userid);
+	
 }
 

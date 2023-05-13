@@ -32,8 +32,10 @@ public class CustomerTransactionServiceImpl implements CustomerTransactionServic
 		//now fetch account for username
 		Optional<CustomerAccountInfo> fromAccountOptional=customerAccountInfoRepository.findByLoginId(username);
 		CustomerAccountInfo accountInfo=null;
-		if(fromAccountOptional.isPresent()){
+		if(fromAccountOptional.isPresent()) {
 			 accountInfo=fromAccountOptional.get();
+		}else {
+			throw new RuntimeException("Sorry customer account info does not exist!");			
 		}
 		
 		List<CustomerTransaction> customerTransactions=customerTransactionRepository.findByFromAccount(accountInfo.getAccountNumber());
