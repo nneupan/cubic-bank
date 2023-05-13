@@ -12,4 +12,6 @@ public interface EmailService {
 
 	String sendLockAndUnlockEmail(EmailVO mail);
 
+	String sendAccountStatement(EmailVO mail);
+
 }

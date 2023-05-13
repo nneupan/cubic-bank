@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.internet.MimeMessage;
@@ -20,7 +21,9 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import com.rab3tech.customer.dao.repository.CustomerRepository;
+import com.rab3tech.customer.service.CustomerTransactionService;
 import com.rab3tech.dao.entity.Customer;
+import com.rab3tech.vo.CustomerTransactionVO;
 import com.rab3tech.vo.EmailVO;
 
 @Service
@@ -35,6 +38,68 @@ public class EmailServiceImpl implements EmailService{
 	
 	@Autowired
 	private CustomerRepository customerRepository;
+	
+	@Autowired
+	private CustomerTransactionService customerTransactionService;
+	
+	
+	@Async("threadPool")
+	@Override
+	public String sendAccountStatement(EmailVO mail) {
+		
+		 try {
+			    MimeMessage message = javaMailSender.createMimeMessage();
+		        MimeMessageHelper helper = new MimeMessageHelper(message,
+		                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+		                StandardCharsets.UTF_8.name());
+		        Context context = new Context();
+		        Map<String,Object> props=new HashMap<>();
+		        
+		        
+		        List<CustomerTransactionVO> customerTransactionVOs = customerTransactionService.findCustomerTransaction(mail.getTo());
+		        if (customerTransactionVOs == null || customerTransactionVOs.isEmpty()) {
+		        	return "nodata";
+		        }
+		        
+		        String fromAccount = "9195376790";
+		        if (customerTransactionVOs != null) {
+		        	fromAccount = customerTransactionVOs.get(0).getFromAccount();
+		        }
+		        
+		        props.put("customerTransactionVOs", customerTransactionVOs); // need to change
+		        props.put("fromAccount", fromAccount); //Hard coded account number need to change
+		        props.put("name", mail.getName());
+		        props.put("sign", "Banking Application");
+		        props.put("location", "Fremont CA100 , USA");
+		        props.put("email", "javahunk2020@gmail.com");
+		        context.setVariables(props);
+		        
+		        String html = templateEngine.process("account-statements", context);
+		        helper.setTo(mail.getTo());
+		        helper.setText(html, true);
+		        helper.setSubject("Regarding your account status.");
+		        helper.setFrom(mail.getFrom());
+		        
+		        //Sending Customer Photo
+		       Customer customer= customerRepository.findByEmail(mail.getTo()).get();
+		        InputStreamSource cimageSource =new ByteArrayResource(customer.getImage());
+		        helper.addInline("photo", cimageSource, "image/png");
+		        
+		        File file=new ClassPathResource("images/bank-icon.png", EmailServiceImpl.class.getClassLoader()).getFile();
+		        byte[] bytes=Files.readAllBytes(file.toPath());
+		        InputStreamSource imageSource =new ByteArrayResource(bytes);
+		        helper.addInline("bankIcon", imageSource, "image/png");
+		        
+		        javaMailSender.send(message);
+			 }catch (Exception e) {
+				e.printStackTrace();
+			 }   
+		        return "done";
+		
+		
+	}
+	
+	
 	
 	
 	@Override

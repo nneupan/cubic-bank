@@ -54,6 +54,21 @@ public class EmployeeUIController {
 	   return "redirect:/employee/customers";
 	}
 	
+	
+	
+	@GetMapping("/customer/deleteCustomer")
+	public String deleteCustomer(@RequestParam String userid,Model model) {
+	   customerService.deleteCustomer(userid);
+	   return "redirect:/employee/customerList";
+	}
+	
+	@GetMapping("/employee/customerList")
+	public String showCustomerList(Model model) {
+	   List<CustomerVO> customerVOs=customerService.findCustomers();
+	   model.addAttribute("customerVOs", customerVOs);
+	   return "employee/customersList";
+	}
+	
 	@GetMapping("/employee/customers")
 	public String showCustomer(Model model) {
 	   List<CustomerVO> customerVOs=customerService.findCustomers();

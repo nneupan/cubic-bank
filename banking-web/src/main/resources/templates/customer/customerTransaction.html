@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Customer Dashboard Page</title>
+  <title>Account Summary</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -50,18 +50,53 @@
 </a>
 
 <a th:href="@{/customer/accountSummary}">
-<button type="button" class="btn btn-danger">Account Summary</button>
+<button type="button" class="btn btn-warning">Account Summary</button>
 </a>
 
-<a th:href="@{/customer/customerProfile}">
-<button type="button" class="btn btn-info">Profile</button>
-</a>
 
  <a th:href="@{/customer/logout}"><button type="button" class="btn btn-warning">Logout</button></a>
  <br/>
-  <img th:src="@{/images/customer_dashboard.jpg}" alt="page"/>
+  <!--  <img th:src="@{/images/bubble2.jpg}" alt="page"/>   -->
+  <br>
+  <hr/>
+  <h2> From Account: </h2>
+  <!--   b th:text="${customerTransaction.fromAccount}"> </b>  -->
+  <span th:text="${customerAccountInfoVOs[0].fromAccount}"></span>
+  
    <span th:utext="${error}" style="color: red;font-size: 18px;"></span>
-  <div style="width: 70%">
+  <div style="width: 85%">
+  
+  
+  <table class="table table-bordered" style="width: 100%;" >
+  <tr style= "background-color : #95c929;"> 
+  		<td> Serial No. </td>
+  		<td> To Account </td>
+  		<td> Amount </td>
+  		<td> Details </td>
+  		<td> Date of Transaction </td>
+  		<td> Status </td>
+  		
+  </tr>
+    <tr th:each="customerTransaction, iter: ${customerAccountInfoVOs}">
+  		<td th:text = "${iter.index+1}" />
+  		<td th:text = "${customerTransaction.toAccout}" />
+  		<td th:text = "${customerTransaction.amount}" />
+  		<td th:text = "${customerTransaction.details}" />
+  		<td th:text = "${customerTransaction.dot}" />
+  		<td th:text = "${customerTransaction.txStatus}" />
+  		
+  </tr>
+  
+  
+  </table>
+  
+  
+  <a th:href="@{/customer/sendAccountStmt}">
+<button type="button" class="btn btn-primary">Send Email</button>
+</a>
+  
+  
+  
   </div>
 </div>
 <footer  class="ffooter">

@@ -19,11 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.rab3tech.admin.dao.repository.AccountStatusRepository;
 import com.rab3tech.admin.dao.repository.AccountTypeRepository;
 import com.rab3tech.admin.dao.repository.MagicCustomerRepository;
-import com.rab3tech.aop.advice.TimeLogger;
+
 import com.rab3tech.customer.dao.repository.CustomerAccountApprovedRepository;
 import com.rab3tech.customer.dao.repository.CustomerAccountEnquiryRepository;
 import com.rab3tech.customer.dao.repository.CustomerAccountInfoRepository;
+import com.rab3tech.customer.dao.repository.CustomerQuestionsAnsRepository;
 import com.rab3tech.customer.dao.repository.CustomerRepository;
+import com.rab3tech.customer.dao.repository.CustomerTransactionRepository;
 import com.rab3tech.customer.dao.repository.PayeeRepository;
 import com.rab3tech.customer.dao.repository.RoleRepository;
 import com.rab3tech.customer.service.CustomerService;
@@ -44,7 +46,7 @@ import com.rab3tech.utils.PasswordGenerator;
 import com.rab3tech.utils.Utils;
 import com.rab3tech.vo.AccountTypeVO;
 import com.rab3tech.vo.CustomerAccountInfoVO;
-import com.rab3tech.vo.CustomerSavingVO;
+
 import com.rab3tech.vo.CustomerUpdateVO;
 import com.rab3tech.vo.CustomerVO;
 import com.rab3tech.vo.EmailVO;
@@ -82,6 +84,12 @@ public class CustomerServiceImpl implements CustomerService {
 	private CustomerAccountInfoRepository customerAccountInfoRepository;
 	
 	@Autowired
+	private CustomerQuestionsAnsRepository customerQuestionsAnsRepository;
+	
+	@Autowired
+	private CustomerTransactionRepository customerTransactionRepository;
+	
+	@Autowired
 	private CustomerRepository CustomerRepository;
 	
 	@Autowired
@@ -94,8 +102,12 @@ public class CustomerServiceImpl implements CustomerService {
 	private CustomerAccountInfoVO createBankAccount(int csaid,String email) {
 		// logic
 				String customerAccount = Utils.generateCustomerAccount();
-				CustomerSaving customerSaving = customerAccountEnquiryRepository.findById(csaid).get();
-
+				CustomerSaving customerSaving =null;
+				try {
+				 customerSaving = customerAccountEnquiryRepository.findById(csaid).get();
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
 				CustomerAccountInfo customerAccountInfo = new CustomerAccountInfo();
 				customerAccountInfo.setAccountNumber(customerAccount);
 				customerAccountInfo.setAccountType(customerSaving.getAccType());
@@ -151,7 +163,12 @@ public class CustomerServiceImpl implements CustomerService {
 		login.setRoles(roles);
 		// setting login inside
 		pcustomer.setLogin(login);
-		Customer dcustomer = customerRepository.save(pcustomer);
+		Customer dcustomer =null;
+		try {
+		 dcustomer = customerRepository.save(pcustomer);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 		customerVO.setId(dcustomer.getId());
 		customerVO.setUserid(customerVO.getUserid());
 
@@ -161,9 +178,10 @@ public class CustomerServiceImpl implements CustomerService {
 			AccountStatus accountStatus = accountStatusRepository.findByCode(AccountStatusEnum.REGISTERED.getCode())
 					.get();
 			customerSaving.setStatus(accountStatus);
+			//Do you know database!!!
+			this.createBankAccount(customerSaving.getCsaid(),pcustomer.getEmail());
 		}
-		//Do you know database!!!
-		this.createBankAccount(dcustomer.getId(),pcustomer.getEmail());
+		
 		
 		return customerVO;
 	}
@@ -197,6 +215,25 @@ public class CustomerServiceImpl implements CustomerService {
 		collect(Collectors.toList()); //List<CustomerVO>
 	}
 	
+	
+	@Override
+	public void deleteCustomer(String userid) {
+		//who logic to delete customer's record from database
+		//Delete customer account information
+		Optional<CustomerAccountInfo> fromAccountOp=customerAccountInfoRepository.findByLoginId(userid);
+		if(fromAccountOp.isPresent()){
+			try {
+			customerTransactionRepository.deleteByFromAccount(fromAccountOp.get().getAccountNumber());
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		customerAccountInfoRepository.deleteByUserid(userid);
+		customerQuestionsAnsRepository.deleteByUserid(userid);
+		customerAccountEnquiryRepository.deleteByUserid(userid);
+		customerRepository.deleteByUserid(userid);
+	}
+	
 	@Override
 	public void updateProfile(CustomerUpdateVO customerVO) {
 		//I have loaded entity inside persistence context - >>Session
@@ -220,6 +257,14 @@ public class CustomerServiceImpl implements CustomerService {
 		
 	}
 	
+	@Override
+	public void updatePhoto(int cid, byte[] photo) {
+		Optional<Customer> optionalCustomer = customerRepository.findById(cid);
+		if (optionalCustomer.isPresent()) {
+			Customer customer = optionalCustomer.get();
+			customer.setImage(photo);
+		}
+	}
 	
 	@Override
 	public byte[] findPhotoByid(int cid) {

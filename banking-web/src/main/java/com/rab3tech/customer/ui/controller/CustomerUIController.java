@@ -34,14 +34,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rab3tech.customer.service.CustomerService;
+import com.rab3tech.customer.service.CustomerTransactionService;
 import com.rab3tech.customer.service.LocationService;
 import com.rab3tech.customer.service.LoginService;
 import com.rab3tech.customer.service.impl.CustomerEnquiryService;
 import com.rab3tech.customer.service.impl.SecurityQuestionService;
 import com.rab3tech.email.service.EmailService;
 import com.rab3tech.vo.ChangePasswordVO;
+import com.rab3tech.vo.CustomerAccountInfoVO;
 import com.rab3tech.vo.CustomerSavingVO;
 import com.rab3tech.vo.CustomerSecurityQueAnsVO;
+import com.rab3tech.vo.CustomerTransactionVO;
 import com.rab3tech.vo.CustomerVO;
 import com.rab3tech.vo.EmailVO;
 import com.rab3tech.vo.FundTransferVO;
@@ -79,12 +82,64 @@ public class CustomerUIController {
 	
 	@Autowired
    private LocationService locationService;
+	
+	@Autowired
+	private CustomerTransactionService customerTransactionService;
+	
+	@GetMapping("/customer/accountSummary") // Action --> /customer/accountSummary
+	public String customerAccountSummary(Model model, HttpSession session) {
+		//Write the logic to fetch the data
+		
+		//This is coming from session.
+		LoginVO loginVO2 = (LoginVO) session.getAttribute("userSessionVO"); //detail of the current user
+		String currentLoggedInUserName = loginVO2.getUsername();
+		CustomerAccountInfoVO customerAccountInfoVO= customerService.findCustomerAccountInfo(currentLoggedInUserName);
+		model.addAttribute("customerAccount", customerAccountInfoVO);
+		
+		return "customer/accountSummary"; // View Name --> customer/accountSummary
+	}
+	
+	
+	
 		
 
 	@GetMapping("/customer/forget/password")
 	public String forgetPassword() {
 		//spring.thymeleaf.prefix=classpath:/src/main/resources/templates/
 		return "customer/forgetPassword";	//forgetPassword.html	
+	}
+	
+	
+	@GetMapping ("/customer/customerTransaction")
+	public String showCustomerTransaction(Model model, HttpSession session) {
+		//Write the logic to fetch the data
+		
+		//This is coming from session.
+		LoginVO loginVO2 = (LoginVO) session.getAttribute("userSessionVO"); //detail of the current user
+		String currentLoggedInUserName = loginVO2.getUsername();
+		List<CustomerTransactionVO> customerTransactionVOs = customerTransactionService.findCustomerTransaction(currentLoggedInUserName);
+		//CustomerAccountInfoVO customerAccountInfoVO= customerService.findCustomerAccountInfo(currentLoggedInUserName);
+		model.addAttribute("customerAccountInfoVOs", customerTransactionVOs);
+		
+		return "customer/customerTransaction"; // View Name --> customer/accountSummary
+	}
+	
+	
+	@GetMapping ("/customer/customerProfile")
+	public String viewProfile(Model model, HttpSession session) {
+		//Write the logic to fetch the data
+		
+		//This is coming from session.
+		LoginVO loginVO2 = (LoginVO) session.getAttribute("userSessionVO"); //detail of the current user
+		String currentLoggedInUserName = loginVO2.getUsername();
+		
+		
+		List<CustomerTransactionVO> customerTransactionVOs = customerTransactionService.findCustomerTransaction(currentLoggedInUserName);
+		//CustomerAccountInfoVO customerAccountInfoVO= customerService.findCustomerAccountInfo(currentLoggedInUserName);
+		
+		model.addAttribute("customerAccountInfoVOs", customerTransactionVOs);
+		
+		return "customer/customerProfile"; // View Name --> customer/accountSummary
 	}
 	
 	

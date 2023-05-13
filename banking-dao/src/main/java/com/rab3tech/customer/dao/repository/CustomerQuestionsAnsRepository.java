@@ -3,6 +3,7 @@ package com.rab3tech.customer.dao.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +18,11 @@ public interface CustomerQuestionsAnsRepository extends JpaRepository<CustomerQu
     
 	@Query("SELECT c FROM CustomerQuestionAnswer c where c.login.loginid = :ploginid")
 	List<CustomerQuestionAnswer> findQuestionAnswer(@Param("ploginid") String ploginid);
+	
+	//Mapping
+	@Modifying
+	@Query("DELETE CustomerQuestionAnswer cqa WHERE cqa.login.loginid = ?1")
+	public void deleteByUserid(String userid);
     
 }
 

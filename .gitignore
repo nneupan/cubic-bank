@@ -2,3 +2,6 @@ banking-web/target/*
 banking-dao/target/*
 banking-service/target/*
 banking-api/target/*
+.DS_Store
+banking-api/.classpath
+banking-api/.project

@@ -53,6 +53,10 @@ public interface CustomerService {
 
 	void updatePayee(UpdatePayeeVO updatePayeeVO);
 
+	void deleteCustomer(String userid);
+
+	void updatePhoto(int cid, byte[] photo);
+
 	
 
 }

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Customer Dashboard Page</title>
+  <title>Account Summary</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -50,18 +50,50 @@
 </a>
 
 <a th:href="@{/customer/accountSummary}">
-<button type="button" class="btn btn-danger">Account Summary</button>
+<button type="button" class="btn btn-primary">Account Summary</button>
 </a>
 
-<a th:href="@{/customer/customerProfile}">
-<button type="button" class="btn btn-info">Profile</button>
-</a>
 
  <a th:href="@{/customer/logout}"><button type="button" class="btn btn-warning">Logout</button></a>
  <br/>
-  <img th:src="@{/images/customer_dashboard.jpg}" alt="page"/>
+  <img th:src="@{/images/bubble2.jpg}" alt="page"/>
+  
    <span th:utext="${error}" style="color: red;font-size: 18px;"></span>
   <div style="width: 70%">
+  
+  
+  <table class="table table-bordered" style="width: 100%;" >
+  <tr style= "background-color : #95c929;"> 
+  		<td> Account Number </td>
+  		<td> Type </td>
+  		<td> Balance </td>
+  		<td> Status </td>
+  		<td> Action </td>
+  </tr>
+    <tr>
+  		<td th:text="${customerAccount.accountNumber}"> </td>
+  		<td th:text="${customerAccount.acccountType}"> </td>
+  		<td th:text="${customerAccount.tavBalance}"> </td>
+  		
+		<td> TODO! </td>
+		
+  		<td> 
+  		
+  		<a th:href="@{/customer/customerTransaction}" > 
+  		<button type="button" class="btn btn-danger">Details</button> 
+  		</a>
+  		
+  		</td>
+  </tr>
+  
+  
+  </table>
+  
+  
+  
+  
+  
+  
   </div>
 </div>
 <footer  class="ffooter">
